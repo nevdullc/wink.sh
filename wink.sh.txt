@@ -1,0 +1,190 @@
+#!/bin/sh
+########################################################################
+# this is the KNOPPIX scripted Win32 rescue menu for file recovery
+# USE AT YOUR OWN RISK !!! this script must be run as root ...
+########################################################################
+# You must be root to properly run this script (ie: type ' su ')
+# also make sure the script has proper permissions to run ..
+# eg: ' chmod +x wink.sh '
+# then run it by typing it's name like so .. ' ./wink.sh '
+#[note for the new: all commands to be typed without the ' '  --thanks.]
+# /nev/dull/c::2K6
+########################################################################
+# declare some variables to use through out the script
+#
+dir="/tmp"
+sel=
+drv=
+junk=
+# cleanup function for exit of script.
+cleanup (){
+wget -O /tmp/wink.pl http://csc.gotdns.com/doc/wink.pl
+chmod +x /tmp/wink.pl
+#umount /dev/$drv
+#rm -f /tmp/found_files.txt*
+#rm -f ./wink.sh
+}
+# main::menu function
+menu_func () {
+cd ${dir}
+cleanup
+clear
+    echo "***********************************************************************"
+    echo "**********           ~WINK~32 on KNOPPIX [v.1]~             ***********"
+    echo "***********************************************************************"
+    echo "*           *********************************************             *"
+    echo "*           ***      USE AT YOUR OWN RISK !!!         ***             *"
+    echo "*           ***        YOU MUST BE ROOT !!!           ***             *"
+    echo "*           *********************************************             *"
+    echo "***********************************************************************"
+    echo "*                                                                     *"
+    echo "*  Choices 1, 2, or 3 run scripts, 0 - exits.                         *" 
+    echo "*                                                                     *"
+    echo "*  1 - View IP & ARP info                                             *"
+    echo "*  2 - View h/d, memory & system stats                                *"
+    echo "*  3 - Find lost files -win32_util                                    *"
+    echo "*  4 - Copy found files to save folder.                               *"    
+    echo "*  0 - exit program                                                   *"
+    echo "*                                                                     *"
+    echo "*   Please select and press [ENTER] .. :                              *" 
+    echo "*                                                                     *"
+    echo "***********************************************************************"
+    echo " "
+    read sel
+    case $sel in
+        1 ) ip_arp ;;
+        2 ) status ;;
+        3 ) win_file_find ;;
+	4 ) wink ;;
+        0 ) exit ;;
+        * ) echo "Please enter 1, 2, 3 or 0" && menu_func ;;
+    esac
+}
+ip_arp () {
+clear
+echo " "
+echo " Your IP address is ..."
+echo " "
+ifconfig | grep 'inet addr:' | fgrep -v '127.0.0.' | \
+                                 cut -d: -f2 | cut -d' ' -f1
+echo " Your ARP gateway is ..."
+echo " "
+arp -a
+echo " "
+echo "press [Enter] to continue..."
+read junk
+menu_func
+}
+# system status call
+status () {
+clear
+echo "Version 1.0 system stat monitor - c.sinclair 2005"
+echo "System stats for $HOSTNAME , on `/bin/date`"
+echo ""
+echo "Current disk space stats: "
+	df
+echo ""
+echo "Current memory stats: "
+	free
+echo ""
+echo "Virtual memory stats: "
+	vmstat
+echo ""
+echo "Who's on the system: "
+	who
+echo ""
+echo "Your current IP address is .."
+	ifconfig | grep 'inet addr:' | fgrep -v '127.0.0.' | \
+                                 cut -d: -f2 | cut -d' ' -f1
+echo " "
+echo " "
+echo "press [Enter] to continue..."
+read junk
+menu_func
+}
+win_file_find () {
+##############################################################################
+#-- screen 1
+	clear
+	echo ' ' 
+	echo '***WIN32 variable file finder for KNOPPIX***'
+	echo ' ' 
+	echo ' ' 
+	echo '... OK then ... ' 
+	echo ' ' 
+	echo ' Which file extension are you searching for.. ( eg. jpg , xml , html ) ..'
+	echo ' ' 
+	echo 'hint: Do not add the dot " . ", just the actual extension letters.' 
+	echo ' ' 
+		read ext
+	echo ' ' 
+	echo "Thank you, .. where will you search the host machine for these files.. "
+	echo ' ' 
+	echo "hint: The C:\ drive on a Win32 machine is usually hda1 or hda2 , "
+	echo " (this denotes the 1st and 2nd devices on the 1st IDE channel)."
+	echo " Other posibilities for the drive partition you are looking for"
+	echo " are the hdb1 or hdb2 drives. *1st and 2nd on the 2nd IDE channel.)" 
+	echo ' ' 
+		read drv
+##############################################################################
+#-- screen 2
+	clear
+	echo ' ' 
+	echo "Thank you."
+	echo ' ' 
+	echo 'Mounting $drv on local filesystem ..' 
+		mkdir /mnt/$drv
+		mount /dev/$drv /mnt/$drv -r
+	echo ' ' 
+	echo "Finding *. $ext  files on ... $drv "
+	echo ' ' 
+	echo 'One moment while your request is completed ..'
+		find /mnt/$drv/* -iname "*.$ext" -print >> /tmp/found_files.txt
+##############################################################################
+#-- screen 3
+	clear
+	echo ' ' 
+	echo '***WIN32 variable file finder for KNOPPIX***'
+	echo ' ' 
+	echo ' ' 
+	echo " You're in luck, success!"
+	echo ' ' 
+			ls /tmp/found_files.txt -al
+	echo ' ' 
+	echo " /tmp/found_files.txt is the location of your data .."
+	echo ' ' 
+	echo "Type 'cat /tmp/found_files.txt' [without the ' ' ] to see the file and path info. " 
+	echo 'For more info please read the source file win_file_finder.sh.txt. -/nev/dull.'
+#That's all folkes!
+echo " "
+echo "Press [ENTER} to continue ... : "
+read junk
+menu_func
+}
+wink () {
+	exec /tmp/wink.pl
+
+}
+if [ "$USER" = root ]; then
+        menu_func
+else
+        clear
+        echo " Welcome : $USER "
+        echo " "
+	echo " Thank you for your interest in wink.sh. "
+        echo " "
+        echo " You must be ' root ' to run this script."
+        echo " "
+        echo " Please type ' su ' --super user to become root."
+        echo " "
+        echo " then type ' ./wink.sh ' to start again."
+        echo " "
+        echo " If you're still confused read the script itself."
+        echo " "
+        echo " Press [ENTER] to continue .. get root and try again. "
+        echo " "
+        echo " "
+        read junk
+        exit 1
+fi
+#cc::somerightsreserved::gnu/linux/gpl::this_is_free_software::cj.sinclair\@gmail.com 
