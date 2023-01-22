@@ -69,3 +69,39 @@ def status():
     os.system("clear")
     print("Version 1.0 system stat monitor - c.sinclair 2005")
     print("System stats for {} ,
+    os.system("System stats for $HOSTNAME , on `/bin/date`")
+    print("")
+    print("Current disk space stats: ")
+    os.system("df")
+    print("")
+    print("Current memory stats: ")
+    os.system("free")
+    print("")
+    print("Virtual memory stats: ")
+    os.system("vmstat")
+    print("")
+    print("Who's on the system: ")
+    os.system("who")
+    print("")
+    print("Your current IP address is ..")
+    os.system("ifconfig | grep 'inetaddr:' | fgrep -v '127.0.0.' | cut -d: -f2 | cut -d' ' -f1")
+    print(" ")
+    print(" ")
+    input("press [Enter] to continue...")
+    menu_func()
+
+def win_file_find():
+    os.system("clear")
+    # code for finding lost files goes here
+    print("press [Enter] to continue...")
+    input()
+    menu_func()
+
+def wink():
+    os.system("clear")
+    # code for copying found files goes here
+    print("press [Enter] to continue...")
+    input()
+    menu_func()
+
+menu_func()
